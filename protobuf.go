@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/sermodigital/errors"
-	"sermocrm.com/pkg/sentry"
 )
 
 func (m RawMessage) Equal(m2 RawMessage) bool {
@@ -162,7 +161,6 @@ func (j JSON) Size() int {
 		if !ok {
 			panic("should be unreachable")
 		}
-		sentry.Alert(err)
 		return 0
 	}
 
