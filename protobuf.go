@@ -157,7 +157,7 @@ func (j JSON) Size() int {
 
 		// TODO: panic? Since Marshal(j) (called below) should never return an
 		// error unless j contains something Go cannot marshal like a channel.
-		err, ok := v.(error)
+		_, ok := v.(error)
 		if !ok {
 			panic("should be unreachable")
 		}
