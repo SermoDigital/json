@@ -1,5 +1,3 @@
-// +build protobuf
-
 package json
 
 import (
@@ -47,8 +45,8 @@ func NewPopulatedRawMessage(r randy, _ ...bool) *RawMessage {
 // pbKey is a bit of a hack to skirt some gogoprotobuf weirdness. How
 // gogoprotobuf currently works is it uses the return value of Size to create
 // a buffer it then marshals the data structure into. It would be unfortunate
-// to have to marshal the same structure twice--once to determine its size and
-// another to copy it somewhere--so we store the result of the marshaling as
+// to have to marshal the same structure twice—once to determine its size and
+// another to copy it somewhere—so we store the result of the marshaling as
 // a field in the JSON object. This name should be random enough that we won't
 // run into any collisions.
 //
@@ -58,7 +56,7 @@ func NewPopulatedRawMessage(r randy, _ ...bool) *RawMessage {
 // This should only be used for protobuf's Size issue and nothing else. I
 // regret having to even write this code, but we use JSON a lot in entities
 // and models.
-const pbKey = "--FZjwSgQwZDqqDxNj9x0a_!_protobuf_!_ZSRvCydU2eBZzicdw3oW--"
+const pbKey = ":--FZjwSgQwZDqqDxNj9x0a_!_\\pRoToBuf//_!_ZSRvCydU2eBZzicdw3oW--:"
 
 func (j JSON) Equal(j2 JSON) bool {
 	if j == nil {
@@ -75,8 +73,8 @@ func (j JSON) Equal(j2 JSON) bool {
 	//
 	// Recursively check to see either has previously been umarshaled. If not,
 	// marshal it so our types match.
-	bm1 := beenmarshaled(j)
-	bm2 := beenmarshaled(j2)
+	bm1 := beenMarshaled(j)
+	bm2 := beenMarshaled(j2)
 
 	// Short circuit if both have been marshaled.
 	if bm1 && bm2 {
@@ -117,23 +115,23 @@ func (j JSON) Equal(j2 JSON) bool {
 	return reflect.DeepEqual(mj1, mj2)
 }
 
-// beenmarshaled returns true if v only consists of the types json.Unmarshal
-// uses, i.e. float64, bool, string, nil. It recursively descends v checking all
-// container types.
-func beenmarshaled(v interface{}) bool {
+// beenMarshaled returns true if v only consists of the types json.Unmarshal
+// uses, i.e. float64, bool, string, nil. It recursively descends v checking
+// all container types.
+func beenMarshaled(v interface{}) bool {
 	switch t := v.(type) {
 	case float64, bool, string, nil:
 		return true
 	case []interface{}:
 		for v := range t {
-			if !beenmarshaled(v) {
+			if !beenMarshaled(v) {
 				return false
 			}
 		}
 		return true
 	case map[string]interface{}:
 		for _, v := range t {
-			if !beenmarshaled(v) {
+			if !beenMarshaled(v) {
 				return false
 			}
 		}
