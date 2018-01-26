@@ -3,12 +3,11 @@ package json
 import (
 	"bytes"
 	"database/sql/driver"
+	gjson "encoding/json"
 	"io"
 
 	"github.com/sermodigital/errors"
 	"github.com/sermodigital/pools"
-
-	j8 "github.com/sermodigital/json1.8"
 )
 
 // Marshal custom implements encoding/j8.Marshal.
@@ -22,7 +21,7 @@ func Marshal(v interface{}) ([]byte, error) {
 
 // MarshalIndent is like Marshal but indents the output.
 func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error) {
-	return j8.MarshalIndent(v, prefix, indent)
+	return gjson.MarshalIndent(v, prefix, indent)
 }
 
 // MarshalStream writes v to the provided io.Writer.
@@ -31,11 +30,11 @@ func MarshalStream(w io.Writer, v interface{}) error {
 }
 
 type Encoder struct {
-	e *j8.Encoder
+	e *gjson.Encoder
 }
 
 func NewEncoder(w io.Writer) Encoder {
-	return Encoder{e: j8.NewEncoder(w)}
+	return Encoder{e: gjson.NewEncoder(w)}
 }
 
 func (e Encoder) Encode(v interface{}) error {
@@ -67,13 +66,13 @@ const MaxReaderSize = 2e7 // 2 MB
 const ErrTooLarge = errors.New("request was too large (max: 2 MB)")
 
 type Decoder struct {
-	d *j8.Decoder
+	d *gjson.Decoder
 	r *io.LimitedReader
 }
 
 func NewDecoder(r io.Reader) Decoder {
 	lr := &io.LimitedReader{R: r, N: MaxReaderSize}
-	return Decoder{d: j8.NewDecoder(lr), r: lr}
+	return Decoder{d: gjson.NewDecoder(lr), r: lr}
 }
 
 func (d Decoder) Decode(v interface{}) error {
@@ -101,32 +100,32 @@ func Unmarshal(data []byte, v interface{}) error {
 	return UnmarshalStream(bytes.NewReader(data), v)
 }
 
-type Number j8.Number
+type Number gjson.Number
 
 func (n Number) Float64() (float64, error) {
-	return ((j8.Number)(n)).Float64()
+	return ((gjson.Number)(n)).Float64()
 }
 
 func (n Number) Int64() (int64, error) {
-	return ((j8.Number)(n)).Int64()
+	return ((gjson.Number)(n)).Int64()
 }
 
 func (n Number) String() string {
-	return ((j8.Number)(n)).String()
+	return ((gjson.Number)(n)).String()
 }
 
-type RawMessage j8.RawMessage
+type RawMessage gjson.RawMessage
 
 func (m RawMessage) MarshalJSON() ([]byte, error) {
 	if m == nil {
 		// See: https://github.com/SermoDigital/sermocrm/issues/279
 		return []byte{'n', 'u', 'l', 'l'}, nil
 	}
-	return ((*j8.RawMessage)(&m)).MarshalJSON()
+	return ((*gjson.RawMessage)(&m)).MarshalJSON()
 }
 
 func (m *RawMessage) UnmarshalJSON(data []byte) error {
-	return ((*j8.RawMessage)(m)).UnmarshalJSON(data)
+	return ((*gjson.RawMessage)(m)).UnmarshalJSON(data)
 }
 
 func (m RawMessage) Value() (driver.Value, error) {
